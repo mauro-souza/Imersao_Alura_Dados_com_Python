@@ -11,8 +11,8 @@ st.set_page_config(
 )
 
 # --- Carregamento dos dados ---
-df = pd.read_csv("dados-imersao-final.csv")
-
+# df = pd.read_csv("dados-imersao-final.csv")
+df = pd.read_csv("dados-imersao-final-traduzido.csv")
 # --- Barra Lateral (Filtros) ---
 st.sidebar.header("🔍 Filtros")
 
@@ -52,7 +52,7 @@ if not df_filtrado.empty:
     salario_medio = df_filtrado['usd'].mean()
     salario_maximo = df_filtrado['usd'].max()
     total_registros = df_filtrado.shape[0]
-    cargo_mais_frequente = df_filtrado["cargo"].mode()[0]
+    cargo_mais_frequente = df_filtrado["cargo_pt"].mode()[0]
 else:
     salario_medio, salario_mediano, salario_maximo, total_registros, cargo_mais_comum = 0, 0, 0, ""
 
@@ -71,11 +71,11 @@ col_graf1, col_graf2 = st.columns(2)
 
 with col_graf1:
     if not df_filtrado.empty:
-        top_cargos = df_filtrado.groupby('cargo')['usd'].mean().nlargest(10).sort_values(ascending=True).reset_index()
+        top_cargos = df_filtrado.groupby('cargo_pt')['usd'].mean().nlargest(10).sort_values(ascending=True).reset_index()
         grafico_cargos = px.bar(
             top_cargos,
             x='usd',
-            y='cargo',
+            y='cargo_pt',
             orientation='h',
             title="Top 10 cargos por salário médio",
             labels={'usd': 'Média salarial anual (USD)', 'cargo': ''}
@@ -103,7 +103,7 @@ col_graf3, col_graf4 = st.columns(2)
 
 with col_graf3:
     if not df_filtrado.empty:
-        remoto_contagem = df_filtrado['remoto'].value_counts().reset_index()
+        remoto_contagem = df_filtrado['modalidade_de_trabalho'].value_counts().reset_index()
         remoto_contagem.columns = ['tipo_trabalho', 'quantidade']
         grafico_remoto = px.pie(
             remoto_contagem,
@@ -120,7 +120,7 @@ with col_graf3:
 
 with col_graf4:
     if not df_filtrado.empty:
-        df_ds = df_filtrado[df_filtrado['cargo'] == 'Data Scientist']
+        df_ds = df_filtrado[df_filtrado['cargo_pt'] == 'Cientista de Dados']
         media_ds_pais = df_ds.groupby('residencia_iso3')['usd'].mean().reset_index()
         grafico_paises = px.choropleth(media_ds_pais,
             locations='residencia_iso3',
@@ -135,5 +135,4 @@ with col_graf4:
 
 # --- Tabela de Dados Detalhados ---
 st.subheader("Dados Detalhados")
-
 st.dataframe(df_filtrado)
